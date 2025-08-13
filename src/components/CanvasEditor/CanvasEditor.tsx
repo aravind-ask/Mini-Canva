@@ -58,7 +58,7 @@ const CanvasEditor: React.FC = () => {
 
       // Sanitize objects for Firestore
       if (canvasData.objects) {
-        canvasData.objects = canvasData.objects.map((obj) => {
+        canvasData.objects = canvasData.objects.map((obj: any) => {
           if (obj.type === "path" && obj.path) {
             // Encode path as a JSON string to avoid nested arrays
             return {
@@ -97,7 +97,19 @@ const CanvasEditor: React.FC = () => {
     if (!fabricCanvasRef.current || isUndoingRedoing.current || isViewOnly)
       return;
 
-    const json = JSON.stringify(fabricCanvasRef.current.toJSON());
+    const json = JSON.stringify(
+      fabricCanvasRef.current.toObject([
+        "selectable",
+        "evented",
+        "hoverCursor",
+        "lockMovementX",
+        "lockMovementY",
+        "hasControls",
+        "lockRotation",
+        "lockScalingX",
+        "lockScalingY",
+      ])
+    );
     undoStack.current.push(json);
     redoStack.current = [];
     updateStackLengths();
@@ -167,8 +179,8 @@ const CanvasEditor: React.FC = () => {
     if (activeObject) {
       const isLocked = activeObject.lockMovementX;
       activeObject.set({
-        selectable: true,
-        evented: true,
+        selectable: !isLocked,
+        evented: !isLocked,
         lockMovementX: !isLocked,
         lockMovementY: !isLocked,
         hasControls: !isLocked,
@@ -176,7 +188,15 @@ const CanvasEditor: React.FC = () => {
         lockScalingX: !isLocked,
         lockScalingY: !isLocked,
       });
-      fabricCanvasRef.current?.setActiveObject(activeObject);
+
+      // If unlocking, select the object
+      if (isLocked) {
+        fabricCanvasRef.current?.setActiveObject(activeObject);
+      } else {
+        // If locking, deselect the object
+        fabricCanvasRef.current?.discardActiveObject();
+      }
+
       fabricCanvasRef.current?.renderAll();
       saveState();
     }
@@ -306,7 +326,19 @@ const CanvasEditor: React.FC = () => {
               fabricCanvasRef.current.renderAll();
             }
             undoStack.current = [
-              JSON.stringify(fabricCanvasRef.current.toJSON()),
+              JSON.stringify(
+                fabricCanvasRef.current.toObject([
+                  "selectable",
+                  "evented",
+                  "hoverCursor",
+                  "lockMovementX",
+                  "lockMovementY",
+                  "hasControls",
+                  "lockRotation",
+                  "lockScalingX",
+                  "lockScalingY",
+                ])
+              ),
             ];
             updateStackLengths();
           }
@@ -402,6 +434,10 @@ const CanvasEditor: React.FC = () => {
 
     const activeObject = fabricCanvasRef.current?.getActiveObject();
     if (activeObject) {
+      // Check if object is locked
+      if (activeObject.lockMovementX && activeObject.lockMovementY) {
+        return; // Don't delete locked objects
+      }
       fabricCanvasRef.current?.remove(activeObject);
     }
   };
@@ -411,6 +447,10 @@ const CanvasEditor: React.FC = () => {
 
     const activeObject = fabricCanvasRef.current?.getActiveObject();
     if (activeObject) {
+      // Check if object is locked
+      if (activeObject.lockMovementX && activeObject.lockMovementY) {
+        return; // Don't change color of locked objects
+      }
       activeObject.set("fill", color);
       activeObject.dirty = true;
       fabricCanvasRef.current?.fire("object:modified", {
