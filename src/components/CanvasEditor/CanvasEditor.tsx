@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import { db } from "../../firebase";
@@ -75,8 +77,8 @@ const CanvasEditor: React.FC = () => {
         });
       }
 
-      // Remove undefined values
       const sanitizedCanvas = JSON.parse(
+        //@ts-ignore
         JSON.stringify(canvasData, (key, value) =>
           value === undefined ? null : value
         )
@@ -207,6 +209,7 @@ const CanvasEditor: React.FC = () => {
 
     fabricCanvasRef.current.selection = false;
     fabricCanvasRef.current.hoverCursor = "default";
+    // @ts-ignore
     fabricCanvasRef.current.interactive = false;
     fabricCanvasRef.current.isDrawingMode = false;
     fabricCanvasRef.current.skipTargetFind = true;
@@ -284,7 +287,7 @@ const CanvasEditor: React.FC = () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          let json = docSnap.data()?.canvas;
+           const json = docSnap.data()?.canvas;
           if (json && fabricCanvasRef.current) {
             // Restore path data from string
             if (json.objects) {
@@ -405,7 +408,9 @@ const CanvasEditor: React.FC = () => {
           width: 150,
           fontSize: 20,
           fill: "#5555ff",
+          //@ts-ignore
           styles: null,
+          //@ts-ignore
           path: null,
           textBackgroundColor: null,
           textAlign: "left",
@@ -462,6 +467,7 @@ const CanvasEditor: React.FC = () => {
 
   const exportCanvas = () => {
     if (fabricCanvasRef.current) {
+      //@ts-ignore
       const dataURL = fabricCanvasRef.current.toDataURL({
         format: "png",
         quality: 1.0,
