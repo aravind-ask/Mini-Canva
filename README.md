@@ -3,8 +3,7 @@
 A lightweight, shareable **2D canvas editor** built with **React, Fabric.js, and Firebase Firestore**.  
 Anyone with the link can **view and edit** the same canvas — no login required.
 
-Live Demo: [https://your-demo-url.com](https://your-demo-url.com)  
-Video Walkthrough: [https://your-video-url.com](https://your-video-url.com)
+Live Demo: [https://mini-canva-x8hu.onrender.com/](https://your-demo-url.com)  
 
 ---
 
@@ -28,11 +27,6 @@ Video Walkthrough: [https://your-video-url.com](https://your-video-url.com)
 - ✅ **Snap-to-grid** for precise alignment
 - ✅ **View-only mode** (`?viewOnly=true` disables editing)
 - ✅ **Object locking** (prevent accidental edits)
-
----
-
-## 📷 Demo Screenshots
-*(Add some screenshots here)*
 
 ---
 
